@@ -1,0 +1,124 @@
+global !p
+def math():
+	return vim.eval('vimtex#syntax#in_mathzone()')=='1'
+
+endglobal
+
+context "math()"
+snippet ff "Fraction" 
+\\frac{$1}{$2}$0
+endsnippet
+
+snippet '((\d+)|(\d*)(\\)?([A-Za-z]+)((\^|_)(\{\d+\}|\d))*)/' "Fraction"
+\\frac{`!p snip.rv = match.group(1)`}{$1}$0
+endsnippet
+
+snippet pr "Partial Fractions"
+\partial $1
+endsnippet
+
+snippet 4 "Latex math mode"
+\$  $1 \$  $0
+endsnippet
+
+snippet env "New LaTeX Environment" 
+\begin{$1}
+	$2
+\end{$1}
+endsnippet
+
+snippet dis "Displaystyle" 
+\displaystyle$0
+endsnippet
+
+
+snippet bf "Bold"
+\textbf{$1}
+endsnippet
+
+snippet bb "\mathbb LaTeX"
+\mathbb{$1}$0
+endsnippet
+
+snippet ud "\mathbb LaTeX"
+\underline{$1}$0
+endsnippet
+
+priority 1000
+snippet '^.*\)/' "() Fraction" wrA
+`!p
+stripped = match.string[:-1]
+depth = 0
+i = len(stripped) - 1
+while True:
+	if stripped[i] == ')': depth += 1
+	if stripped[i] == '(': depth -= 1
+	if depth == 0: break;
+	i -= 1
+snip.rv = stripped[0:i] + "\\frac{" + stripped[i+1:-1] + "}"
+`{$1}$0
+endsnippet
+
+priority 10
+snippet bar "bar" 
+\overline{$1}$0
+endsnippet
+
+priority 100
+snippet "([a-zA-Z])barr" "bar" riA
+\overline{`!p snip.rv=match.group(1)`}
+endsnippet
+
+snippet sympy "sympy block" w
+sympy $1 sympy$0
+endsnippet
+
+priority 10000
+snippet 'sympy(.*)sympy' "evaluate sympy" wr
+`!p
+from sympy import *
+x, y, z, t = symbols('x, y z t')
+k, m, n = symbols('k m n', integer=True)
+f, g, h = symbols('f g h', cls = Function)
+init_printing()
+snip.rv = eval('latex(' + match.group(1).replace('\\','')\
+	.replace('^', '**') \
+	.replace('{','(') \
+	.replace('}',')')+')')
+`
+endsnippet
+
+
+snippet nn "New Default Document Style" b
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{blindtext, titlesec, amsthm, thmtools, amsmath, amsfonts, scalerel, amssymb, graphicx, titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+%\hypersetup{colorlinks,linkcolor={red!20!black},citecolor={blue!50!black,urlcolor={blue!80!black}}
+\hypersetup{frenchlinks=true}
+
+\newtheorem{theorem}{Theorem}[subsection]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{hypothesis}{Hypothesis}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]
+
+\title{$1}
+\author{Harry Han}
+\date{$2}
+\begin{document}
+%maketitle
+%tableofcontents
+%newpage
+$0
+
+
+
+\end{document}
+endsnippet
